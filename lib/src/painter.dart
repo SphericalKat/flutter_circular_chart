@@ -65,7 +65,7 @@ void _paintChart(Canvas canvas, Size size, CircularChart chart) {
 
   for (final CircularChartStack stack in chart.stacks) {
     for (final segment in stack.segments) {
-      segmentPaint.shader = RadialGradient(colors: [segment.startColor, segment.endColor]).createShader(
+      segmentPaint.shader = LinearGradient(colors: [segment.startColor, segment.endColor]).createShader(
         Rect.fromCircle(
           center: Offset(size.width / 2, size.height / 2),
           radius: stack.radius,
