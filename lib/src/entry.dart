@@ -9,7 +9,8 @@ import 'dart:ui';
 /// [value], what proportion of a stack this corresponds to depends on the [percentageValues]
 /// property of the chart.
 class CircularSegmentEntry {
-  const CircularSegmentEntry(this.value, this.color, {this.rankKey, this.strokeWidth});
+  const CircularSegmentEntry(this.value, this.startColor, this.endColor,
+      {this.rankKey, this.strokeWidth});
 
   /// The value of this data point, defines the sweep angle of the arc
   /// that is drawn. If the chart being drawn has [percentageValues] set to false
@@ -19,7 +20,8 @@ class CircularSegmentEntry {
   final double value;
 
   /// The color drawn in the stack for this segment.
-  final Color color;
+  final Color startColor;
+  final Color endColor;
 
   /// An optional String key, used when animating charts to preserve semantics when
   /// transitioning between data points.
@@ -28,7 +30,7 @@ class CircularSegmentEntry {
   final double strokeWidth;
 
   String toString() {
-    return '$rankKey: $value $color $strokeWidth';
+    return '$rankKey: $value $startColor $endColor $strokeWidth';
   }
 }
 
