@@ -1,6 +1,5 @@
 import 'dart:math' as Math;
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_circular_chart/src/animated_circular_chart.dart';
@@ -54,6 +53,8 @@ void _paintLabel(Canvas canvas, Size size, TextPainter labelPainter) {
   }
 }
 
+double convertRadiusToSigma(double radius) => radius * 0.57735 + 0.5;
+
 void _paintChart(Canvas canvas, Size size, CircularChart chart) {
   final Paint segmentPaint = new Paint()
     ..style = chart.chartType == CircularChartType.Radial
@@ -65,24 +66,58 @@ void _paintChart(Canvas canvas, Size size, CircularChart chart) {
 
   for (final CircularChartStack stack in chart.stacks) {
     for (final segment in stack.segments) {
-      segmentPaint.shader = LinearGradient(colors: [segment.startColor, segment.endColor]).createShader(
+      segmentPaint.shader =
+          LinearGradient(colors: [segment.startColor, segment.endColor])
+              .createShader(
         Rect.fromCircle(
           center: Offset(size.width / 2, size.height / 2),
           radius: stack.radius,
         ),
       );
-      
+
       segmentPaint.strokeWidth = segment.strokeWidth ?? stack.width;
+      final Paint shadowPaint = Paint()
+        ..style = chart.chartType == CircularChartType.Radial
+            ? PaintingStyle.stroke
+            : PaintingStyle.fill
+        ..strokeCap = chart.edgeStyle == SegmentEdgeStyle.round
+            ? StrokeCap.round
+            : StrokeCap.butt
+        // ..color = Colors.black.withAlpha(128)
+        ..maskFilter =
+            MaskFilter.blur(BlurStyle.normal, convertRadiusToSigma(12));
+
+      shadowPaint.strokeWidth = (segment.strokeWidth ?? stack.width) - 2;
+      shadowPaint.shader =
+          LinearGradient(colors: [segment.startColor, segment.endColor])
+              .createShader(
+        Rect.fromCircle(
+          center: Offset(size.width / 2, size.height / 2),
+          radius: stack.radius,
+        ),
+      );
 
       canvas.drawArc(
-          new Rect.fromCircle(
-            center: new Offset(size.width / 2, size.height / 2),
-            radius: stack.radius,
-          ),
-          stack.startAngle * _kRadiansPerDegree,
-          segment.sweepAngle * _kRadiansPerDegree,
-          chart.chartType == CircularChartType.Pie,
-          segmentPaint);
+        new Rect.fromCircle(
+          center: new Offset(size.width / 2, size.height / 2),
+          radius: stack.radius,
+        ),
+        stack.startAngle * _kRadiansPerDegree,
+        segment.sweepAngle * _kRadiansPerDegree,
+        chart.chartType == CircularChartType.Pie,
+        shadowPaint,
+      );
+
+      canvas.drawArc(
+        new Rect.fromCircle(
+          center: new Offset(size.width / 2, size.height / 2),
+          radius: stack.radius,
+        ),
+        stack.startAngle * _kRadiansPerDegree,
+        segment.sweepAngle * _kRadiansPerDegree,
+        chart.chartType == CircularChartType.Pie,
+        segmentPaint,
+      );
     }
   }
 }
